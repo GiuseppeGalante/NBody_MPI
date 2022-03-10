@@ -246,19 +246,15 @@ bodyForce(porzione,numElementi+1);
 #### Ricezione ####
 La ricezione comincia usando la funzione Point-to-Point **MPI_Recv** per recuperare le dimensioni inviate attraverso la *Send*. Successivamente si crea la porzione da computare (una per ogni processo) andando infine a computarla effettivamente con la chiamata della funzione **_bodyForce_**.
 ```
-for(int i=1;i<size;i++)
+MPI_Recv(&inizio,1,MPI_INT, 0,99, MPI_COMM_WORLD, &status);
+MPI_Recv(&lunghezza,1,MPI_INT, 0,99, MPI_COMM_WORLD, &status);
+for(int j=0;j<lunghezza;j++)
 {
-    MPI_Recv(&inizio,1,MPI_INT, 0,99, MPI_COMM_WORLD, &status);
-    MPI_Recv(&lunghezza,1,MPI_INT, 0,99, MPI_COMM_WORLD, &status);
-    for(int j=0;j<lunghezza;j++)
-    {
-        porzione[j]=particella[inizio];
-        inizio++;
-    }
-    bodyForce(porzione,lunghezza);
-    printf("\n");
-    break;
+    porzione[j]=particella[inizio];
+    inizio++;
 }
+bodyForce(porzione,lunghezza);
+printf("\n");
 ```
 Terminata tutta la parte di divisione ed invio delle particelle ci rimane da aspettare la terminazione dei processi tramite la **MPI_Barrier**, calcolare il tempo di esecuzione recuperando il tempo di terminazione con ```end=MPI_Wtime();```, richiamare la funzione ``` Stampa_Risultati(); ``` per stampare le particelle con le proprietà aggiornate,  liberare la memoria dal tipo allocato ``` NewBodies ```, da ```particella ``` e ``` porzione ```. Ed infine terminare MPI e con esso l'intera simulazione con ```  MPI_Finalize(); ```
 
